@@ -11,16 +11,47 @@ dotenv.config()
 
 const app = express()
 
-app.use(express.json())
+const corsOptions = {
+	origin: (
+		origin: string | undefined,
+		callback: (err: Error | null, allow?: boolean) => void
+	) => {
+		// Allow requests from all origins (reflecting request origin) with credentials
+		callback(null, true)
+	},
+	credentials: true,
+	methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+	allowedHeaders: [
+		"Content-Type",
+		"Authorization",
+		"X-Requested-With",
+		"Accept",
+	],
+}
 
-app.use(cors())
+app.use(cors(corsOptions))
+
+app.use(express.json())
 
 app.use(express.static(path.join(__dirname, "public"))) // Serve static files
 
 const server = http.createServer(app)
 const io = new Server(server, {
 	cors: {
-		origin: "*",
+		origin: (
+			origin: string | undefined,
+			callback: (err: Error | null, allow?: boolean) => void
+		) => {
+			callback(null, true)
+		},
+		methods: ["GET", "POST", "OPTIONS"],
+		credentials: true,
+		allowedHeaders: [
+			"Content-Type",
+			"Authorization",
+			"X-Requested-With",
+			"Accept",
+		],
 	},
 	maxHttpBufferSize: 1e8,
 	pingTimeout: 60000,
